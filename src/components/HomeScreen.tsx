@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Tool, User } from "../types";
 import { ToolCard } from "./ToolCard";
+import { SearchBar } from "./SearchBar";
 import { mockTools } from "../data/mockTools";
 
 // Props interface defines what data HomeScreen receives from parent (App.tsx)
@@ -20,11 +21,24 @@ export function HomeScreen({
 }: HomeScreenProps) {
   // State to hold all tools we're displaying
   // Initialize with mockTools from our data file
-  const [tools, setTools] = useState<Tool[]>(mockTools);
+  const [tools] = useState<Tool[]>(mockTools);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Map through tools array and create a ToolCard component for each one
-  // .map() transforms each tool object into a ToolCard component
-  const toolCards = tools.map((tool) => (
+  // Filter tools by search query in name or description
+  const filteredTools = tools.filter((tool) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (query === "") {
+      return true;
+    }
+
+    return (
+      tool.name.toLowerCase().includes(query) ||
+      tool.description.toLowerCase().includes(query)
+    );
+  });
+
+  // Map filtered tools into ToolCard components
+  const toolCards = filteredTools.map((tool) => (
     <ToolCard
       key={tool.id} // React needs a unique key for lists - helps with re-rendering
       tool={tool} // Pass the tool data to ToolCard component
@@ -61,13 +75,16 @@ export function HomeScreen({
         </button>
       </header>
 
+      {/* Search bar lets users filter the tool list by keyword */}
+      <SearchBar onSearch={setSearchQuery} />
+
       {/* Tools grid - displays all available tools */}
       <div className="tools-grid">
-        {/* Conditional rendering: check if we have any tools */}
+        {/* Conditional rendering: check if we have any matching tools */}
         {toolCards.length > 0 ? (
-          toolCards // Show all the tool card components if tools exist
+          toolCards // Show filtered tool cards if any exist
         ) : (
-          <p>No tools available</p> // Show this message if no tools (empty state)
+          <p>No tools match your search</p> // Show this message if no tools match search
         )}
       </div>
     </div>
