@@ -1,5 +1,6 @@
 // src/components/WelcomeScreen.tsx
 import { useState } from "react";
+import { validateUser } from "../services/toolService";
 import { User } from "../types";
 
 // This component shows when app first loads
@@ -15,6 +16,7 @@ export function WelcomeScreen({ onLoginComplete }: WelcomeScreenProps) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [error, setError] = useState("");
 
   // This runs when user clicks the "Get Started" button
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,6 +36,12 @@ export function WelcomeScreen({ onLoginComplete }: WelcomeScreenProps) {
       joinedDate: new Date(), // Today's date - records when user signed up
     };
 
+    if (!validateUser(newUser)) {
+      setError("Please complete all fields with valid information.");
+      return;
+    }
+
+    setError("");
     // Tell parent component (App.tsx) that login is complete
     // This triggers navigation to home screen
     onLoginComplete(newUser);
@@ -49,6 +57,7 @@ export function WelcomeScreen({ onLoginComplete }: WelcomeScreenProps) {
 
       {/* Login form - captures user details */}
       <form onSubmit={handleSubmit}>
+        {error && <p className="error-message">{error}</p>}
         {/* Name input field */}
         <input
           type="text"

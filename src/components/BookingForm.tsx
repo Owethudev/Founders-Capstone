@@ -1,33 +1,24 @@
 import { useState } from "react";
-import { Tool, Booking } from "../types";
+import { Tool, Booking, User } from "../types";
+import { createBooking } from "../services/toolService";
 
 interface BookingFormProps {
   tool: Tool; // Tool being booked
-  borrowerName: string; // Name of person borrowing
-  borrowerPhone: string; // Their phone number
+  borrower: User; // User borrowing the tool
   onConfirm: (booking: Booking) => void; // What to do when confirmed
   onCancel: () => void; // What to do when cancelled
 }
 
 export function BookingForm({
   tool,
-  borrowerName,
-  borrowerPhone,
+  borrower,
   onConfirm,
   onCancel,
 }: BookingFormProps) {
   const [notes, setNotes] = useState("");
 
   const handleConfirm = () => {
-    const booking: Booking = {
-      id: Math.random().toString(),
-      toolId: tool.id,
-      borrowerId: Math.random().toString(),
-      ownerId: tool.owner.id,
-      bookingDate: new Date(),
-      status: "confirmed",
-    };
-
+    const booking = createBooking(tool, borrower);
     onConfirm(booking);
   };
 
@@ -49,10 +40,10 @@ export function BookingForm({
 
       <div className="borrower-section">
         <p>
-          <strong>Your Name:</strong> {borrowerName}
+          <strong>Your Name:</strong> {borrower.name}
         </p>
         <p>
-          <strong>Your Phone:</strong> {borrowerPhone}
+          <strong>Your Phone:</strong> {borrower.phone}
         </p>
       </div>
 

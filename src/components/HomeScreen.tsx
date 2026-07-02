@@ -3,7 +3,8 @@ import { useState } from "react";
 import { Tool, User } from "../types";
 import { ToolCard } from "./ToolCard";
 import { SearchBar } from "./SearchBar";
-import { mockTools, categories } from "../data/mockTools";
+import { getAvailableTools, filterTools } from "../services/toolService";
+import { categories } from "../data/mockTools";
 
 // Props interface defines what data HomeScreen receives from parent (App.tsx)
 interface HomeScreenProps {
@@ -20,28 +21,19 @@ export function HomeScreen({
   onViewMyTools,
 }: HomeScreenProps) {
   // State to hold all tools we're displaying
-  // Initialize with mockTools from our data file
-  const [tools] = useState<Tool[]>(mockTools);
+  // Initialize with the type-safe service layer
+  const [tools] = useState<Tool[]>(getAvailableTools());
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [maxDistance, setMaxDistance] = useState(100);
 
   // Filter tools by search query, selected category, and max distance
-  const filteredTools = tools.filter((tool) => {
-    const query = searchQuery.trim().toLowerCase();
-
-    const matchesSearch =
-      query === "" ||
-      tool.name.toLowerCase().includes(query) ||
-      tool.description.toLowerCase().includes(query);
-
-    const matchesCategory =
-      selectedCategory === "All" || tool.category === selectedCategory;
-
-    const matchesDistance = tool.distance <= maxDistance;
-
-    return matchesSearch && matchesCategory && matchesDistance;
-  });
+  const filteredTools = filterTools(
+    tools,
+    searchQuery,
+    selectedCategory,
+    maxDistance,
+  );
 
   // Map filtered tools into ToolCard components
   const toolCards = filteredTools.map((tool) => (

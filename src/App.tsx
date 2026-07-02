@@ -7,7 +7,7 @@ import { BookingConfirmation } from "./components/BookingConfirmation";
 import { MyPostedToolsScreen } from "./components/MyPostedToolsScreen";
 import { useDarkMode } from "./hooks/useDarkMode";
 import { User, Tool, Booking } from "./types";
-import { mockTools } from "./data/mockTools";
+import { getAvailableTools } from "./services/toolService";
 
 type Screen =
   | "welcome"
@@ -23,6 +23,7 @@ export function App() {
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [currentBooking, setCurrentBooking] = useState<Booking | null>(null);
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const allTools = getAvailableTools();
 
   const handleLoginComplete = (user: User) => {
     setCurrentUser(user);
@@ -87,8 +88,7 @@ export function App() {
       return (
         <BookingForm
           tool={selectedTool}
-          borrowerName={currentUser.name}
-          borrowerPhone={currentUser.phone}
+          borrower={currentUser}
           onConfirm={handleBookingConfirm}
           onCancel={() => setCurrentScreen("detail")}
         />
@@ -109,7 +109,7 @@ export function App() {
       return (
         <MyPostedToolsScreen
           currentUser={currentUser}
-          allTools={mockTools}
+          allTools={allTools}
           onAddTool={() => undefined}
           onBack={() => setCurrentScreen("home")}
         />
