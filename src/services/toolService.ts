@@ -5,6 +5,12 @@ export const getAvailableTools = (): Tool[] => {
   return mockTools;
 };
 
+export const fetchAvailableTools = async (): Promise<Tool[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(mockTools), 250);
+  });
+};
+
 export const filterTools = (
   tools: Tool[],
   query: string,

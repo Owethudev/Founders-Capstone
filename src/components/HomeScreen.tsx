@@ -1,9 +1,9 @@
 // src/components/HomeScreen.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tool, User } from "../types";
 import { ToolCard } from "./ToolCard";
 import { SearchBar } from "./SearchBar";
-import { getAvailableTools, filterTools } from "../services/toolService";
+import { fetchAvailableTools, filterTools } from "../services/toolService";
 import { categories } from "../data/mockTools";
 
 // Props interface defines what data HomeScreen receives from parent (App.tsx)
@@ -21,11 +21,37 @@ export function HomeScreen({
   onViewMyTools,
 }: HomeScreenProps) {
   // State to hold all tools we're displaying
-  // Initialize with the type-safe service layer
-  const [tools] = useState<Tool[]>(getAvailableTools());
+  const [tools, setTools] = useState<Tool[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [maxDistance, setMaxDistance] = useState(100);
+
+  useEffect(() => {
+    const loadTools = async () => {
+      try {
+        const availableTools = await fetchAvailableTools();
+        setTools(availableTools);
+      } catch (error) {
+        setLoadError(
+          error instanceof Error ? error.message : "Unable to load tools.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTools();
+  }, []);
+
+  if (isLoading) {
+    return <div className="loading-state">Loading tools...</div>;
+  }
+
+  if (loadError) {
+    return <div className="error-message">{loadError}</div>;
+  }
 
   // Filter tools by search query, selected category, and max distance
   const filteredTools = filterTools(
