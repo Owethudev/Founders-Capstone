@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Tool, User } from "../types";
 import { ToolCard } from "./ToolCard";
 import { SearchBar } from "./SearchBar";
-import { mockTools } from "../data/mockTools";
+import { mockTools, categories } from "../data/mockTools";
 
 // Props interface defines what data HomeScreen receives from parent (App.tsx)
 interface HomeScreenProps {
@@ -23,18 +23,21 @@ export function HomeScreen({
   // Initialize with mockTools from our data file
   const [tools] = useState<Tool[]>(mockTools);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
-  // Filter tools by search query in name or description
+  // Filter tools by search query and selected category
   const filteredTools = tools.filter((tool) => {
     const query = searchQuery.trim().toLowerCase();
-    if (query === "") {
-      return true;
-    }
 
-    return (
+    const matchesSearch =
+      query === "" ||
       tool.name.toLowerCase().includes(query) ||
-      tool.description.toLowerCase().includes(query)
-    );
+      tool.description.toLowerCase().includes(query);
+
+    const matchesCategory =
+      selectedCategory === "All" || tool.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
   });
 
   // Map filtered tools into ToolCard components
@@ -77,6 +80,27 @@ export function HomeScreen({
 
       {/* Search bar lets users filter the tool list by keyword */}
       <SearchBar onSearch={setSearchQuery} />
+
+      {/* Category filter buttons */}
+      <div className="category-filter">
+        <button
+          className={selectedCategory === "All" ? "active" : ""}
+          onClick={() => setSelectedCategory("All")}
+          aria-pressed={selectedCategory === "All"}
+        >
+          All
+        </button>
+        {categories.map((category) => (
+          <button
+            key={category}
+            className={selectedCategory === category ? "active" : ""}
+            onClick={() => setSelectedCategory(category)}
+            aria-pressed={selectedCategory === category}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
 
       {/* Tools grid - displays all available tools */}
       <div className="tools-grid">

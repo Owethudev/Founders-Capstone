@@ -1,5 +1,5 @@
 interface SearchBarProps {
-  onSearch: (query: string) => void;  // Function to call when user types
+  onSearch: (query: string) => void; // Function to call when user types
 }
 
 export function SearchBar({ onSearch }: SearchBarProps) {
@@ -8,7 +8,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
       <input
         type="text"
         placeholder="Search for tools (e.g., 'drill', 'mower')"
-        onChange={(e) => onSearch(e.target.value)}  // Call onSearch every time user types
+        onChange={(e) => onSearch(e.target.value)} // Call onSearch every time user types
         aria-label="Search tools"
       />
     </div>
