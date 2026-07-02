@@ -9,106 +9,136 @@ import { useDarkMode } from "./hooks/useDarkMode";
 import { User, Tool, Booking } from "./types";
 import { mockTools } from "./data/mockTools";
 
+type Screen =
+  | "welcome"
+  | "home"
+  | "detail"
+  | "booking"
+  | "confirmation"
+  | "myTools";
+
 export function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
-  const [booking, setBooking] = useState<Booking | null>(null);
-  const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(
-    null,
-  );
-  const [viewingMyTools, setViewingMyTools] = useState(false);
+  const [currentBooking, setCurrentBooking] = useState<Booking | null>(null);
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+
+  const handleLoginComplete = (user: User) => {
+    setCurrentUser(user);
+    setCurrentScreen("home");
+  };
 
   const handleToolClick = (tool: Tool) => {
     setSelectedTool(tool);
+    setCurrentScreen("detail");
   };
 
-  const handleBack = () => {
-    setSelectedTool(null);
+  const handleBookTool = (tool: Tool) => {
+    setSelectedTool(tool);
+    setCurrentScreen("booking");
   };
 
-  const handleStartBooking = (tool: Tool) => {
-    setBooking({
-      id: "",
-      toolId: tool.id,
-      borrowerId: "",
-      ownerId: tool.owner.id,
-      bookingDate: new Date(),
-      status: "confirmed",
-    });
-  };
-
-  const handleConfirmBooking = (newBooking: Booking) => {
-    setConfirmedBooking(newBooking);
-    setBooking(null);
-  };
-
-  const handleCancelBooking = () => {
-    setBooking(null);
-  };
-
-  const handleCloseConfirmation = () => {
-    setConfirmedBooking(null);
-    setSelectedTool(null);
+  const handleBookingConfirm = (booking: Booking) => {
+    setCurrentBooking(booking);
+    setCurrentScreen("confirmation");
   };
 
   const handleViewMyTools = () => {
-    setViewingMyTools(true);
+    setCurrentScreen("myTools");
   };
 
-  const handleCloseMyTools = () => {
-    setViewingMyTools(false);
+  const handleReturnHome = () => {
+    setCurrentScreen("home");
+    setSelectedTool(null);
+    setCurrentBooking(null);
   };
 
-  return currentUser ? (
-    <div className={`app-shell ${isDarkMode ? "dark-mode" : "light-mode"}`}>
-      <header className="app-header">
-        <button
-          className="dark-mode-toggle"
-          onClick={toggleDarkMode}
-          aria-label="Toggle dark mode"
-        >
-          {isDarkMode ? "☀️ Light" : "🌙 Dark"}
-        </button>
-      </header>
-      {confirmedBooking ? (
-        <BookingConfirmation
-          booking={confirmedBooking}
-          tool={selectedTool as Tool}
-          onClose={handleCloseConfirmation}
-        />
-      ) : selectedTool ? (
-        booking ? (
-          <BookingForm
-            tool={selectedTool}
-            borrowerName={currentUser.name}
-            borrowerPhone={currentUser.phone}
-            onConfirm={handleConfirmBooking}
-            onCancel={handleCancelBooking}
-          />
-        ) : (
-          <ToolDetailScreen
-            tool={selectedTool}
-            onBack={handleBack}
-            onBook={handleStartBooking}
-          />
-        )
-      ) : viewingMyTools ? (
-        <MyPostedToolsScreen
-          currentUser={currentUser}
-          allTools={mockTools}
-          onAddTool={() => undefined}
-          onBack={handleCloseMyTools}
-        />
-      ) : (
+  const renderScreen = () => {
+    if (!currentUser) {
+      return <WelcomeScreen onLoginComplete={handleLoginComplete} />;
+    }
+
+    if (currentScreen === "welcome") {
+      return <WelcomeScreen onLoginComplete={handleLoginComplete} />;
+    }
+
+    if (currentScreen === "home") {
+      return (
         <HomeScreen
           currentUser={currentUser}
           onToolClick={handleToolClick}
           onViewMyTools={handleViewMyTools}
         />
+      );
+    }
+
+    if (currentScreen === "detail" && selectedTool) {
+      return (
+        <ToolDetailScreen
+          tool={selectedTool}
+          onBook={handleBookTool}
+          onBack={() => setCurrentScreen("home")}
+        />
+      );
+    }
+
+    if (currentScreen === "booking" && selectedTool && currentUser) {
+      return (
+        <BookingForm
+          tool={selectedTool}
+          borrowerName={currentUser.name}
+          borrowerPhone={currentUser.phone}
+          onConfirm={handleBookingConfirm}
+          onCancel={() => setCurrentScreen("detail")}
+        />
+      );
+    }
+
+    if (currentScreen === "confirmation" && currentBooking && selectedTool) {
+      return (
+        <BookingConfirmation
+          booking={currentBooking}
+          tool={selectedTool}
+          onClose={handleReturnHome}
+        />
+      );
+    }
+
+    if (currentScreen === "myTools" && currentUser) {
+      return (
+        <MyPostedToolsScreen
+          currentUser={currentUser}
+          allTools={mockTools}
+          onAddTool={() => undefined}
+          onBack={() => setCurrentScreen("home")}
+        />
+      );
+    }
+
+    return (
+      <HomeScreen
+        currentUser={currentUser}
+        onToolClick={handleToolClick}
+        onViewMyTools={handleViewMyTools}
+      />
+    );
+  };
+
+  return (
+    <div className={`app-shell ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+      {currentUser && (
+        <header className="app-header">
+          <button
+            className="dark-mode-toggle"
+            onClick={toggleDarkMode}
+            aria-label="Toggle dark mode"
+          >
+            {isDarkMode ? "☀️ Light" : "🌙 Dark"}
+          </button>
+        </header>
       )}
+      {renderScreen()}
     </div>
-  ) : (
-    <WelcomeScreen onLoginComplete={setCurrentUser} />
   );
 }
