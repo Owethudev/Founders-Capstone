@@ -3,14 +3,4 @@
 Hi Thabo, thanks for the brief. Here's how I approached the sprint and the calls
 I made. (Replace everything below — write it in your own voice, to him.)
 
-## What I built this sprint (and why these earned the spot)
--
-
-## What I cut or deferred (and why)
--
-
-## What I pushed back on (and why — be honest and kind)
--
-
-## What I'd do next, if we keep going
--
+In your brief the first thing you stated was the product name being “Pddle Thabo” and that name will not work as it is not a name that will ring with people and they wont find associated with such a site so I have decided to name it “BackyardBuds”. You said it is like a Marketplace that is also a social thing which are two separate things and marketplace is a selling and buying platform which is not the thing we are building here I will build something for the community to be able to borrow tools to each other .You want the ability to search and filter by distance,by category,paid or free ( the paid or free option won’t be a feature because it’s already a community borrowing platform no money involved ) .A booking system implements backend and this is a frontend im creating so instead of that every tool will have the neighbours contact information and a book now button that will take in your information and will give you a confirmation and that you booked the tool and then removes the product. I love the login feature you want and I will implement it. How the form will work is when the landing page loads it will ask for your details..I will not include the 3 people are looking at this feature it is unnecessary and tacky for what we are trying to achieve I am sorry . I will not build a messaging thing as well it complicates the project and is not a necessary feature that is why you will have access to contact details and a messaging app inside the site with just frontend is not possible. I will implement dark mode as you asked. This is an exciting project and i will build you something unique for you and your investors to cherish
