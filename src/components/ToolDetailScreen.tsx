@@ -18,8 +18,12 @@ export function ToolDetailScreen({
         ← Back
       </button>
 
-      {/* Large tool image */}
-      <img src={tool.imageUrl} alt={tool.name} className="detail-image" />
+      {/* Large tool image placeholder */}
+      <div className="image-frame detail-image-frame">
+        <div className="image-placeholder detail-placeholder">
+          <span>{tool.name}</span>
+        </div>
+      </div>
 
       {/* Tool information section */}
       <div className="detail-content">

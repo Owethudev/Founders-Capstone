@@ -132,6 +132,30 @@ textarea {
   padding: 1.5rem;
 }
 
+.welcome-container {
+  min-height: calc(100vh - 6rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.welcome-container form {
+  width: 100%;
+  max-width: 420px;
+}
+
+.welcome-container input,
+.welcome-container button {
+  width: 100%;
+}
+
+.welcome-container button {
+  margin-top: 1rem;
+}
+
 .welcome-container,
 .tool-card,
 .detail-screen,
@@ -143,6 +167,52 @@ textarea {
   border-radius: 32px;
   box-shadow: 0 24px 40px var(--shadow);
   position: relative;
+}
+
+.image-frame {
+  width: 100%;
+  min-height: 220px;
+  border-bottom: 4px dashed var(--border-color);
+  border-radius: 28px 28px 0 0;
+  background: var(--surface-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(45deg, rgba(17, 17, 17, 0.12) 0, rgba(17, 17, 17, 0.12) 2px, transparent 2px, transparent 12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-family: "Patrick Hand", "Comic Sans MS", cursive;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 1rem;
+}
+
+.image-placeholder span {
+  display: inline-block;
+  padding: 0.75rem 1.2rem;
+  border: 3px dashed var(--border-color);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.detail-image-frame {
+  min-height: 320px;
+}
+
+.detail-placeholder span {
+  font-size: 1.2rem;
+  line-height: 1.4;
 }
 
 .welcome-container::before,

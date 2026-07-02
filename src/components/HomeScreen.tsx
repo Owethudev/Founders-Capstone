@@ -1,14 +1,15 @@
 // src/components/HomeScreen.tsx
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Tool, User } from "../types";
 import { ToolCard } from "./ToolCard";
 import { SearchBar } from "./SearchBar";
-import { fetchAvailableTools, filterTools } from "../services/toolService";
+import { filterTools } from "../services/toolService";
 import { categories } from "../data/mockTools";
 
 // Props interface defines what data HomeScreen receives from parent (App.tsx)
 interface HomeScreenProps {
   currentUser: User; // The logged-in user object
+  tools: Tool[]; // Tools from app state
   onToolClick: (tool: Tool) => void; // Function to call when user clicks a tool
   onViewMyTools: () => void; // Function to navigate to "my posted tools" page
 }
@@ -17,41 +18,13 @@ interface HomeScreenProps {
 // This is the first screen users see after logging in
 export function HomeScreen({
   currentUser,
+  tools,
   onToolClick,
   onViewMyTools,
 }: HomeScreenProps) {
-  // State to hold all tools we're displaying
-  const [tools, setTools] = useState<Tool[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [maxDistance, setMaxDistance] = useState(100);
-
-  useEffect(() => {
-    const loadTools = async () => {
-      try {
-        const availableTools = await fetchAvailableTools();
-        setTools(availableTools);
-      } catch (error) {
-        setLoadError(
-          error instanceof Error ? error.message : "Unable to load tools.",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadTools();
-  }, []);
-
-  if (isLoading) {
-    return <div className="loading-state">Loading tools...</div>;
-  }
-
-  if (loadError) {
-    return <div className="error-message">{loadError}</div>;
-  }
 
   // Filter tools by search query, selected category, and max distance
   const filteredTools = filterTools(

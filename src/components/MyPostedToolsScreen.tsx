@@ -36,7 +36,17 @@ export function MyPostedToolsScreen({
         <div className="posted-tools-grid">
           {myTools.map((tool) => (
             <div key={tool.id} className="my-tool-card">
-              <ToolCard tool={tool} onClick={onToolClick} />
+              <ToolCard
+                tool={tool}
+                onClick={(toolId) => {
+                  const selectedTool = myTools.find(
+                    (item) => item.id === toolId,
+                  );
+                  if (selectedTool) {
+                    onToolClick(selectedTool);
+                  }
+                }}
+              />
               {tool.isBorrowed && (
                 <div className="borrowed-badge">Currently borrowed</div>
               )}

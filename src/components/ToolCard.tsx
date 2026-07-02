@@ -31,12 +31,12 @@ export function ToolCard({ tool, onClick }: ToolCardProps) {
         }
       }}
     >
-      {/* Tool image section */}
-      <img
-        src={tool.imageUrl} // URL to the tool's image
-        alt={tool.name} // Alt text for accessibility (describes image if it fails to load)
-        className="tool-image" // CSS class for styling
-      />
+      {/* Tool image section placeholder */}
+      <div className="image-frame">
+        <div className="image-placeholder">
+          <span>{tool.name}</span>
+        </div>
+      </div>
 
       {/* Card content section - all text info goes here */}
       <div className="card-content">

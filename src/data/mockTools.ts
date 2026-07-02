@@ -10,7 +10,7 @@ export const mockTools: Tool[] = [
     name: 'Power Drill',
     description: 'Black & Decker cordless drill, like new condition. 18V battery included.',
     category: 'Power Tools',
-    imageUrl: 'https://source.unsplash.com/featured/300x300/?power-drill',
+    imageUrl: "/images/powerdrill.jpg",
     owner: {
       id: 'user1',
       name: 'John Smith',

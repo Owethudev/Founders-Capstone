@@ -177,6 +177,7 @@ export function App() {
     return (
       <HomeScreen
         currentUser={currentUser}
+        tools={allTools}
         onToolClick={handleToolClick}
         onViewMyTools={handleViewMyTools}
       />
