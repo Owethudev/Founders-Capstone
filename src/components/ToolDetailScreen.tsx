@@ -36,9 +36,9 @@ export function ToolDetailScreen({
           <p>
             <strong>{tool.owner.name}</strong>
           </p>
-          <p>📧 {tool.owner.email}</p>
-          <p>📱 {tool.owner.phone}</p>
-          <p>📍 {tool.owner.location.address}</p>
+          <p>{tool.owner.email}</p>
+          <p>{tool.owner.phone}</p>
+          <p>{tool.owner.location.address}</p>
         </div>
       </div>
 

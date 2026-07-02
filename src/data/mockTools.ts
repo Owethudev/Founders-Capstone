@@ -10,7 +10,7 @@ export const mockTools: Tool[] = [
     name: 'Power Drill',
     description: 'Black & Decker cordless drill, like new condition. 18V battery included.',
     category: 'Power Tools',
-    imageUrl: 'https://via.placeholder.com/300x300?text=Power+Drill',
+    imageUrl: 'https://source.unsplash.com/featured/300x300/?power-drill',
     owner: {
       id: 'user1',
       name: 'John Smith',
@@ -32,7 +32,7 @@ export const mockTools: Tool[] = [
     name: 'Lawn Mower',
     description: 'Petrol mower, runs great. Recently serviced.',
     category: 'Garden Tools',
-    imageUrl: 'https://via.placeholder.com/300x300?text=Lawn+Mower',
+    imageUrl: 'https://source.unsplash.com/featured/300x300/?lawn-mower',
     owner: {
       id: 'user2',
       name: 'Sarah Johnson',
@@ -54,7 +54,7 @@ export const mockTools: Tool[] = [
     name: 'Circular Saw',
     description: 'Makita circular saw, perfect for cutting wood. Blade included.',
     category: 'Power Tools',
-    imageUrl: 'https://via.placeholder.com/300x300?text=Circular+Saw',
+    imageUrl: 'https://source.unsplash.com/featured/300x300/?circular-saw',
     owner: {
       id: 'user3',
       name: 'Michael Chen',
@@ -76,7 +76,7 @@ export const mockTools: Tool[] = [
     name: 'Garden Rake',
     description: 'Sturdy metal rake, good for clearing leaves and garden prep.',
     category: 'Garden Tools',
-    imageUrl: 'https://via.placeholder.com/300x300?text=Garden+Rake',
+    imageUrl: 'https://source.unsplash.com/featured/300x300/?garden-rake',
     owner: {
       id: 'user4',
       name: 'Emma Wilson',
@@ -98,7 +98,7 @@ export const mockTools: Tool[] = [
     name: 'Hammer & Nail Set',
     description: 'Professional hammer set with variety of nails. Perfect for any project.',
     category: 'Hand Tools',
-    imageUrl: 'https://via.placeholder.com/300x300?text=Hammer+Set',
+    imageUrl: 'https://source.unsplash.com/featured/300x300/?hammer',
     owner: {
       id: 'user5',
       name: 'David Brown',
@@ -120,7 +120,7 @@ export const mockTools: Tool[] = [
     name: 'Pressure Washer',
     description: 'High-pressure washer for cleaning decks and driveways. 3000 PSI.',
     category: 'Equipment',
-    imageUrl: 'https://via.placeholder.com/300x300?text=Pressure+Washer',
+    imageUrl: 'https://source.unsplash.com/featured/300x300/?pressure-washer',
     owner: {
       id: 'user6',
       name: 'Lisa Anderson',
@@ -142,7 +142,7 @@ export const mockTools: Tool[] = [
     name: 'Wrench Set',
     description: 'Complete wrench set with sizes from 8mm to 24mm. Great for repairs.',
     category: 'Hand Tools',
-    imageUrl: 'https://via.placeholder.com/300x300?text=Wrench+Set',
+    imageUrl: 'https://source.unsplash.com/featured/300x300/?wrench-set',
     owner: {
       id: 'user1',
       name: 'John Smith',
@@ -164,7 +164,7 @@ export const mockTools: Tool[] = [
     name: 'Garden Hose',
     description: '50ft flexible garden hose with spray nozzle. Like new condition.',
     category: 'Garden Tools',
-    imageUrl: 'https://via.placeholder.com/300x300?text=Garden+Hose',
+    imageUrl: 'https://source.unsplash.com/featured/300x300/?garden-hose',
     owner: {
       id: 'user7',
       name: 'Robert Martinez',
@@ -186,7 +186,7 @@ export const mockTools: Tool[] = [
     name: 'Jigsaw',
     description: 'DeWalt jigsaw, great for detailed cutting work. Clean and well maintained.',
     category: 'Power Tools',
-    imageUrl: 'https://via.placeholder.com/300x300?text=Jigsaw',
+    imageUrl: 'https://source.unsplash.com/featured/300x300/?jigsaw-tool',
     owner: {
       id: 'user3',
       name: 'Michael Chen',
@@ -208,7 +208,7 @@ export const mockTools: Tool[] = [
     name: 'Ladder - 20ft Extension',
     description: 'Aluminum extension ladder. Safe and stable. Great for reaching high places.',
     category: 'Equipment',
-    imageUrl: 'https://via.placeholder.com/300x300?text=Extension+Ladder',
+    imageUrl: 'https://source.unsplash.com/featured/300x300/?extension-ladder',
     owner: {
       id: 'user8',
       name: 'Jessica Lee',
