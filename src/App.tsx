@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WelcomeScreen } from "./components/WelcomeScreen";
 import { HomeScreen } from "./components/HomeScreen";
 import { ToolDetailScreen } from "./components/ToolDetailScreen";
@@ -8,6 +8,7 @@ import { MyPostedToolsScreen } from "./components/MyPostedToolsScreen";
 import { useDarkMode } from "./hooks/useDarkMode";
 import { User, Tool, Booking } from "./types";
 import { getAvailableTools } from "./services/toolService";
+import { clearUser, getSavedUser, saveUser } from "./services/storage";
 
 type Screen =
   | "welcome"
@@ -25,8 +26,17 @@ export function App() {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const allTools = getAvailableTools();
 
+  useEffect(() => {
+    const savedUser = getSavedUser();
+    if (savedUser) {
+      setCurrentUser(savedUser);
+      setCurrentScreen("home");
+    }
+  }, []);
+
   const handleLoginComplete = (user: User) => {
     setCurrentUser(user);
+    saveUser(user);
     setCurrentScreen("home");
   };
 
@@ -53,6 +63,12 @@ export function App() {
     setCurrentScreen("home");
     setSelectedTool(null);
     setCurrentBooking(null);
+  };
+
+  const handleLogout = () => {
+    clearUser();
+    setCurrentUser(null);
+    setCurrentScreen("welcome");
   };
 
   const renderScreen = () => {
@@ -135,6 +151,13 @@ export function App() {
             aria-label="Toggle dark mode"
           >
             {isDarkMode ? "☀️ Light" : "🌙 Dark"}
+          </button>
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+            aria-label="Log out"
+          >
+            Logout
           </button>
         </header>
       )}
