@@ -4,7 +4,9 @@ import { HomeScreen } from "./components/HomeScreen";
 import { ToolDetailScreen } from "./components/ToolDetailScreen";
 import { BookingForm } from "./components/BookingForm";
 import { BookingConfirmation } from "./components/BookingConfirmation";
+import { MyPostedToolsScreen } from "./components/MyPostedToolsScreen";
 import { User, Tool, Booking } from "./types";
+import { mockTools } from "./data/mockTools";
 
 export function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -13,6 +15,7 @@ export function App() {
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(
     null,
   );
+  const [viewingMyTools, setViewingMyTools] = useState(false);
 
   const handleToolClick = (tool: Tool) => {
     setSelectedTool(tool);
@@ -47,6 +50,14 @@ export function App() {
     setSelectedTool(null);
   };
 
+  const handleViewMyTools = () => {
+    setViewingMyTools(true);
+  };
+
+  const handleCloseMyTools = () => {
+    setViewingMyTools(false);
+  };
+
   return currentUser ? (
     <div className="app-shell">
       {confirmedBooking ? (
@@ -71,11 +82,18 @@ export function App() {
             onBook={handleStartBooking}
           />
         )
+      ) : viewingMyTools ? (
+        <MyPostedToolsScreen
+          currentUser={currentUser}
+          allTools={mockTools}
+          onAddTool={() => undefined}
+          onBack={handleCloseMyTools}
+        />
       ) : (
         <HomeScreen
           currentUser={currentUser}
           onToolClick={handleToolClick}
-          onViewMyTools={() => undefined}
+          onViewMyTools={handleViewMyTools}
         />
       )}
     </div>
