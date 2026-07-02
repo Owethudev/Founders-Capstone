@@ -4,6 +4,76 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TypeScript Basics Assessment</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #ffffff;
+        --text: #111111;
+        --surface: #f7f7f7;
+        --surface-strong: #ffffff;
+        --border: #d8d8d8;
+        --muted: #555555;
+        --primary: #2857ff;
+        --primary-text: #ffffff;
+      }
+
+      html.dark-mode {
+        color-scheme: dark;
+        --bg: #12131a;
+        --text: #f4f5f9;
+        --surface: #1e212c;
+        --surface-strong: #272b3a;
+        --border: #323645;
+        --muted: #9da4ba;
+        --primary: #7c9bff;
+        --primary-text: #0f172a;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, sans-serif;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .app-header {
+        display: flex;
+        justify-content: flex-end;
+        padding: 16px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .dark-mode-toggle {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        background: var(--surface-strong);
+        color: var(--text);
+        border-radius: 12px;
+        cursor: pointer;
+      }
+
+      .dark-mode-toggle:hover {
+        opacity: 0.88;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

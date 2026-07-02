@@ -5,6 +5,7 @@ import { ToolDetailScreen } from "./components/ToolDetailScreen";
 import { BookingForm } from "./components/BookingForm";
 import { BookingConfirmation } from "./components/BookingConfirmation";
 import { MyPostedToolsScreen } from "./components/MyPostedToolsScreen";
+import { useDarkMode } from "./hooks/useDarkMode";
 import { User, Tool, Booking } from "./types";
 import { mockTools } from "./data/mockTools";
 
@@ -16,6 +17,7 @@ export function App() {
     null,
   );
   const [viewingMyTools, setViewingMyTools] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   const handleToolClick = (tool: Tool) => {
     setSelectedTool(tool);
@@ -59,7 +61,16 @@ export function App() {
   };
 
   return currentUser ? (
-    <div className="app-shell">
+    <div className={`app-shell ${isDarkMode ? "dark-mode" : "light-mode"}`}>
+      <header className="app-header">
+        <button
+          className="dark-mode-toggle"
+          onClick={toggleDarkMode}
+          aria-label="Toggle dark mode"
+        >
+          {isDarkMode ? "☀️ Light" : "🌙 Dark"}
+        </button>
+      </header>
       {confirmedBooking ? (
         <BookingConfirmation
           booking={confirmedBooking}
