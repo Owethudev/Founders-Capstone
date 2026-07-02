@@ -23,8 +23,47 @@ export function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("welcome");
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [currentBooking, setCurrentBooking] = useState<Booking | null>(null);
+  const [allTools, setAllTools] = useState<Tool[]>(getAvailableTools());
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const allTools = getAvailableTools();
+
+  const handleRemoveTool = (toolId: string) => {
+    setAllTools((previous) => previous.filter((tool) => tool.id !== toolId));
+  };
+
+  const handleAddTool = () => {
+    if (!currentUser) {
+      return;
+    }
+
+    const name = window.prompt("Tool name", "New tool");
+    if (!name) {
+      return;
+    }
+
+    const category = window.prompt("Category", "Hand Tools") ?? "Hand Tools";
+    const description =
+      window.prompt(
+        "Short description",
+        "A reliable tool shared by a neighbor.",
+      ) ?? "A reliable tool shared by a neighbor.";
+
+    const newTool: Tool = {
+      id: crypto.randomUUID(),
+      name,
+      description,
+      category,
+      imageUrl: `https://source.unsplash.com/featured/300x300/?${encodeURIComponent(
+        name,
+      )}`,
+      owner: currentUser,
+      isBorrowed: false,
+      distance: 1,
+      postedDate: new Date(),
+    };
+
+    setAllTools((previous) => [newTool, ...previous]);
+    setCurrentScreen("myTools");
+  };
 
   useEffect(() => {
     const savedUser = getSavedUser();
@@ -84,6 +123,7 @@ export function App() {
       return (
         <HomeScreen
           currentUser={currentUser}
+          tools={allTools}
           onToolClick={handleToolClick}
           onViewMyTools={handleViewMyTools}
         />
@@ -126,7 +166,9 @@ export function App() {
         <MyPostedToolsScreen
           currentUser={currentUser}
           allTools={allTools}
-          onAddTool={() => undefined}
+          onAddTool={handleAddTool}
+          onRemoveTool={handleRemoveTool}
+          onToolClick={handleToolClick}
           onBack={() => setCurrentScreen("home")}
         />
       );

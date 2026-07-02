@@ -4,7 +4,9 @@ import { ToolCard } from "./ToolCard";
 interface MyPostedToolsScreenProps {
   currentUser: User; // The logged-in user
   allTools: Tool[]; // All tools in the system
-  onAddTool: () => void; // Navigate to add tool page
+  onAddTool: () => void; // Open add tool flow
+  onRemoveTool: (toolId: string) => void; // Remove a tool from the list
+  onToolClick: (tool: Tool) => void; // View tool details
   onBack: () => void; // Go back to home
 }
 
@@ -12,6 +14,8 @@ export function MyPostedToolsScreen({
   currentUser,
   allTools,
   onAddTool,
+  onRemoveTool,
+  onToolClick,
   onBack,
 }: MyPostedToolsScreenProps) {
   const myTools = allTools.filter((tool) => tool.owner.id === currentUser.id);
@@ -32,13 +36,23 @@ export function MyPostedToolsScreen({
         <div className="posted-tools-grid">
           {myTools.map((tool) => (
             <div key={tool.id} className="my-tool-card">
-              <ToolCard tool={tool} onClick={() => {}} />
+              <ToolCard tool={tool} onClick={onToolClick} />
               {tool.isBorrowed && (
                 <div className="borrowed-badge">Currently borrowed</div>
               )}
               <div className="tool-actions">
-                <button className="edit-btn">Edit</button>
-                <button className="remove-btn">Remove</button>
+                <button
+                  className="edit-btn"
+                  onClick={() => window.alert("Edit is coming soon!")}
+                >
+                  Edit
+                </button>
+                <button
+                  className="remove-btn"
+                  onClick={() => onRemoveTool(tool.id)}
+                >
+                  Remove
+                </button>
               </div>
             </div>
           ))}
