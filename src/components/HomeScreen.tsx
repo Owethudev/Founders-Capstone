@@ -24,8 +24,9 @@ export function HomeScreen({
   const [tools] = useState<Tool[]>(mockTools);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [maxDistance, setMaxDistance] = useState(100);
 
-  // Filter tools by search query and selected category
+  // Filter tools by search query, selected category, and max distance
   const filteredTools = tools.filter((tool) => {
     const query = searchQuery.trim().toLowerCase();
 
@@ -37,7 +38,9 @@ export function HomeScreen({
     const matchesCategory =
       selectedCategory === "All" || tool.category === selectedCategory;
 
-    return matchesSearch && matchesCategory;
+    const matchesDistance = tool.distance <= maxDistance;
+
+    return matchesSearch && matchesCategory && matchesDistance;
   });
 
   // Map filtered tools into ToolCard components
@@ -100,6 +103,23 @@ export function HomeScreen({
             {category}
           </button>
         ))}
+      </div>
+
+      {/* Distance filter slider - lets users choose how far away tools can be */}
+      <div className="distance-filter">
+        <label htmlFor="distance-filter-range">
+          Show tools within {maxDistance} km
+        </label>
+        <input
+          id="distance-filter-range"
+          type="range"
+          min="1"
+          max="10"
+          step="1"
+          value={maxDistance}
+          onChange={(e) => setMaxDistance(Number(e.target.value))}
+          aria-label="Filter tools by distance"
+        />
       </div>
 
       {/* Tools grid - displays all available tools */}
