@@ -2,24 +2,63 @@ const Tool = require('../models/Tool');
 const AppError = require('../utils/appError');
 
 async function getTools(query = {}) {
-  const { page = 1, limit = 20, category, isActive, search } = query;
+  const {
+    page = 1,
+    limit = 20,
+    category,
+    isActive,
+    search,
+    location,
+    owner,
+    availability,
+    sortBy = 'createdAt',
+    sortOrder = 'desc',
+  } = query;
+
   const filter = {};
 
-  if (category) filter.category = category;
-  if (isActive !== undefined) filter.isActive = isActive === 'true';
+  if (category) {
+    filter.category = { $regex: category, $options: 'i' };
+  }
+
+  if (isActive !== undefined) {
+    filter.isActive = isActive === 'true';
+  }
 
   if (search) {
     filter.$or = [
       { title: { $regex: search, $options: 'i' } },
       { description: { $regex: search, $options: 'i' } },
+      { category: { $regex: search, $options: 'i' } },
     ];
   }
 
+  if (location) {
+    filter.$or = [
+      ...(filter.$or || []),
+      { 'location.formattedAddress': { $regex: location, $options: 'i' } },
+    ];
+  }
+
+  if (owner) {
+    filter.ownerId = owner;
+  }
+
+  if (availability === 'available') {
+    filter.isActive = true;
+  }
+
+  const sortOptions = {};
+  sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+  const pageNumber = Math.max(1, Number(page));
+  const limitNumber = Math.min(100, Math.max(1, Number(limit)));
+
   return Tool.find(filter)
     .populate('ownerId', 'name email avatarUrl reputationScore')
-    .skip((Number(page) - 1) * Number(limit))
-    .limit(Number(limit))
-    .sort({ createdAt: -1 });
+    .skip((pageNumber - 1) * limitNumber)
+    .limit(limitNumber)
+    .sort(sortOptions);
 }
 
 async function getToolById(id) {

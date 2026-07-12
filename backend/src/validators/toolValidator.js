@@ -44,6 +44,11 @@ const getToolsValidation = [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
   query('category').optional().trim().notEmpty(),
+  query('location').optional().trim().notEmpty(),
+  query('owner').optional().isMongoId().withMessage('Owner must be a valid MongoDB id'),
+  query('availability').optional().isIn(['available']).withMessage('Availability must be available'),
+  query('sortBy').optional().isIn(['createdAt', 'priceAmount', 'title', 'averageRating']).withMessage('Invalid sort field'),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('sortOrder must be asc or desc'),
   query('isActive').optional().isIn(['true', 'false']).withMessage('isActive must be true or false'),
   validate,
 ];

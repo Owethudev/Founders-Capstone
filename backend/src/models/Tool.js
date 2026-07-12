@@ -115,6 +115,9 @@ const toolSchema = new mongoose.Schema(
 
 toolSchema.index({ 'location.coordinates': '2dsphere' });
 toolSchema.index({ category: 1, isActive: 1, priceType: 1 });
-toolSchema.index({ createdAt: -1 });
+toolSchema.index({ title: 'text', description: 'text', category: 'text' });
+toolSchema.index({ ownerId: 1, isActive: 1, createdAt: -1 });
+toolSchema.index({ isActive: 1, createdAt: -1 });
+toolSchema.index({ isActive: 1, priceAmount: 1 });
 
 module.exports = mongoose.model('Tool', toolSchema);

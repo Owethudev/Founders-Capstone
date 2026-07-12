@@ -8,6 +8,9 @@ const userRoutes = require('./src/routes/userRoutes');
 const borrowRequestRoutes = require('./src/routes/borrowRequestRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
+const reviewRoutes = require('./src/routes/reviewRoutes');
+const notificationRoutes = require('./src/routes/notificationRoutes');
+const messageRoutes = require('./src/routes/messageRoutes');
 const errorHandler = require('./src/middleware/errorHandler');
 
 const app = express();
@@ -26,6 +29,9 @@ app.use('/api/tools', toolRoutes);
 app.use('/api/borrow-requests', borrowRequestRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/messages', messageRoutes);
 
 app.use(errorHandler);
 

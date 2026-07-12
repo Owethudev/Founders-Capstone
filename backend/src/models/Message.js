@@ -2,19 +2,13 @@ const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema(
   {
-    borrowRequestId: {
+    conversationId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'BorrowRequest',
+      ref: 'Conversation',
       required: true,
       index: true,
     },
     senderId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-      index: true,
-    },
-    receiverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -32,10 +26,13 @@ const messageSchema = new mongoose.Schema(
         trim: true,
       },
     ],
-    readAt: {
-      type: Date,
-      default: null,
-    },
+    readBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+      },
+    ],
   },
   {
     timestamps: true,
@@ -43,6 +40,7 @@ const messageSchema = new mongoose.Schema(
   }
 );
 
-messageSchema.index({ borrowRequestId: 1, createdAt: -1 });
+messageSchema.index({ conversationId: 1, createdAt: -1 });
+messageSchema.index({ senderId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Message', messageSchema);

@@ -1,6 +1,7 @@
 const BorrowRequest = require('../models/BorrowRequest');
 const Tool = require('../models/Tool');
 const AppError = require('../utils/appError');
+const { createNotification } = require('./notificationService');
 
 async function createBorrowRequest(borrowerId, payload) {
   const { toolId, startDate, endDate, message, pickupLocation } = payload;
@@ -42,6 +43,16 @@ async function createBorrowRequest(borrowerId, payload) {
     pickupLocation,
     totalAmount: tool.priceAmount || 0,
     depositAmount: tool.depositAmount || 0,
+  });
+
+  await createNotification({
+    recipientId: tool.ownerId,
+    type: 'borrow_request',
+    title: 'New borrow request',
+    body: `A borrower requested to borrow your tool: ${tool.title}`,
+    entityType: 'BorrowRequest',
+    entityId: borrowRequest._id,
+    actionUrl: `/borrow-requests/${borrowRequest._id}`,
   });
 
   return borrowRequest;
@@ -134,6 +145,24 @@ async function updateBorrowRequestStatus(userId, requestId, payload) {
   }
 
   await borrowRequest.save();
+
+  const statusText = {
+    accepted: 'accepted',
+    rejected: 'rejected',
+    returned: 'returned',
+  };
+
+  if (statusText[status]) {
+    await createNotification({
+      recipientId: borrowRequest.borrowerId,
+      type: 'borrow_request',
+      title: `Borrow request ${statusText[status]}`,
+      body: `Your borrow request for ${borrowRequest.toolId} was ${statusText[status]}.`,
+      entityType: 'BorrowRequest',
+      entityId: borrowRequest._id,
+      actionUrl: `/borrow-requests/${borrowRequest._id}`,
+    });
+  }
 
   return borrowRequest;
 }

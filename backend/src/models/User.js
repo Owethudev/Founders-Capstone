@@ -70,6 +70,17 @@ const userSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    averageRating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     lastSeenAt: {
       type: Date,
       default: null,
