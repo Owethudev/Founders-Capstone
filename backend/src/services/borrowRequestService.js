@@ -1,10 +1,13 @@
 const BorrowRequest = require('../models/BorrowRequest');
 const Tool = require('../models/Tool');
 const AppError = require('../utils/appError');
+const { requireOwner } = require('../utils/authorization');
+const { pickAllowedFields } = require('../utils/validatePayload');
 const { createNotification } = require('./notificationService');
 
 async function createBorrowRequest(borrowerId, payload) {
-  const { toolId, startDate, endDate, message, pickupLocation } = payload;
+  const safePayload = pickAllowedFields(payload, ['toolId', 'startDate', 'endDate', 'message', 'pickupLocation']);
+  const { toolId, startDate, endDate, message, pickupLocation } = safePayload;
 
   const tool = await Tool.findById(toolId);
   if (!tool) {
@@ -102,9 +105,7 @@ async function updateBorrowRequestStatus(userId, requestId, payload) {
     throw new AppError('Borrow request not found', 404);
   }
 
-  if (borrowRequest.ownerId.toString() !== userId.toString()) {
-    throw new AppError('Only the tool owner can change the request status', 403);
-  }
+  requireOwner(userId, borrowRequest.ownerId, 'Only the tool owner can change the request status');
 
   const allowedStatuses = ['accepted', 'rejected', 'returned', 'cancelled'];
   if (!allowedStatuses.includes(status)) {

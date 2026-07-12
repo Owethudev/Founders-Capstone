@@ -1,0 +1,14 @@
+name: Deploy Staging
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Notify staging deployment
+        run: echo "Staging deployment workflow is ready. Configure Render deploy hooks to trigger from this workflow."

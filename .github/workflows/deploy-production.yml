@@ -1,0 +1,14 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Notify production deployment
+        run: echo "Production deployment workflow is ready. Configure Render deploy hooks to trigger from this workflow."

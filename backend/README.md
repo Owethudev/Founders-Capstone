@@ -92,3 +92,35 @@ You can later split feature-specific modules like:
 - messages/
 
 inside the main folders as the app grows.
+
+## Production hardening completed
+
+- Environment validation now runs at startup.
+- Structured request logging is enabled for each request.
+- A health smoke test is available for deployment verification.
+- Optional Sentry error tracking can be enabled with SENTRY_DSN.
+
+## Runbook
+
+```bash
+npm install
+npm start
+```
+
+Run the automated smoke suite:
+
+```bash
+npm test
+```
+
+Run the deployment health check:
+
+```bash
+npm run smoke
+```
+
+Or directly:
+
+```bash
+curl http://127.0.0.1:5000/health
+```
