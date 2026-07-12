@@ -10,3 +10,13 @@ services:
         value: production
       - key: PORT
         value: 10000
+      - key: JWT_SECRET
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: BCRYPT_SALT_ROUNDS
+        value: 12

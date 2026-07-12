@@ -7,7 +7,7 @@ import { BookingConfirmation } from "./components/BookingConfirmation";
 import { MyPostedToolsScreen } from "./components/MyPostedToolsScreen";
 import { useDarkMode } from "./hooks/useDarkMode";
 import { User, Tool, Booking } from "./types";
-import { getAvailableTools } from "./services/toolService";
+import { fetchAvailableTools, getAvailableTools } from "./services/toolService";
 import { clearUser, getSavedUser, saveUser } from "./services/storage";
 
 type Screen =
@@ -71,6 +71,10 @@ export function App() {
       setCurrentUser(savedUser);
       setCurrentScreen("home");
     }
+
+    void fetchAvailableTools().then((tools) => {
+      setAllTools(tools);
+    });
   }, []);
 
   const handleLoginComplete = (user: User) => {

@@ -10,5 +10,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Notify production deployment
-        run: echo "Production deployment workflow is ready. Configure Render deploy hooks to trigger from this workflow."
+      - name: Trigger Render production deploy
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.RENDER_PRODUCTION_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_PRODUCTION_DEPLOY_HOOK_URL is not configured." >&2
+            exit 1
+          fi
+          curl -fsS -X POST "$DEPLOY_HOOK_URL"
