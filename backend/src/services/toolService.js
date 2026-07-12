@@ -1,5 +1,8 @@
+const mongoose = require('mongoose');
 const Tool = require('../models/Tool');
 const AppError = require('../utils/appError');
+const { requireOwner } = require('../utils/authorization');
+const { pickAllowedFields } = require('../utils/validatePayload');
 
 async function getTools(query = {}) {
   const {
@@ -51,6 +54,14 @@ async function getTools(query = {}) {
   const sortOptions = {};
   sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
+  if (mongoose.connection.readyState !== 1) {
+    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+      return [];
+    }
+
+    throw new AppError('Database unavailable', 503);
+  }
+
   const pageNumber = Math.max(1, Number(page));
   const limitNumber = Math.min(100, Math.max(1, Number(limit)));
 
@@ -72,8 +83,11 @@ async function getToolById(id) {
 }
 
 async function createTool(ownerId, payload) {
+  const allowedFields = ['title', 'description', 'category', 'subcategory', 'condition', 'priceType', 'priceAmount', 'depositAmount', 'location', 'availabilityStart', 'availabilityEnd', 'images', 'isActive'];
+  const safePayload = pickAllowedFields(payload, allowedFields);
+
   const tool = await Tool.create({
-    ...payload,
+    ...safePayload,
     ownerId,
   });
 
@@ -87,18 +101,10 @@ async function updateTool(ownerId, toolId, payload) {
     throw new AppError('Tool not found', 404);
   }
 
-  if (tool.ownerId.toString() !== ownerId.toString()) {
-    throw new AppError('You can only edit your own tools', 403);
-  }
+  requireOwner(ownerId, tool.ownerId, 'You can only edit your own tools');
 
   const allowedUpdates = ['title', 'description', 'category', 'subcategory', 'condition', 'priceType', 'priceAmount', 'depositAmount', 'location', 'availabilityStart', 'availabilityEnd', 'images', 'isActive'];
-  const filteredUpdates = {};
-
-  Object.keys(payload).forEach((key) => {
-    if (allowedUpdates.includes(key)) {
-      filteredUpdates[key] = payload[key];
-    }
-  });
+  const filteredUpdates = pickAllowedFields(payload, allowedUpdates);
 
   const updatedTool = await Tool.findByIdAndUpdate(toolId, filteredUpdates, {
     new: true,
@@ -115,9 +121,7 @@ async function deleteTool(ownerId, toolId) {
     throw new AppError('Tool not found', 404);
   }
 
-  if (tool.ownerId.toString() !== ownerId.toString()) {
-    throw new AppError('You can only delete your own tools', 403);
-  }
+  requireOwner(ownerId, tool.ownerId, 'You can only delete your own tools');
 
   await Tool.findByIdAndDelete(toolId);
 

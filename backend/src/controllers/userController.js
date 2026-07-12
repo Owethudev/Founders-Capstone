@@ -18,6 +18,14 @@ async function getUserById(req, res, next) {
   }
 }
 
+async function getCurrentUser(req, res, next) {
+  try {
+    res.status(200).json({ success: true, data: req.user });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function updateProfile(req, res, next) {
   try {
     const user = await userService.updateProfile(req.user._id, req.body);
@@ -39,6 +47,7 @@ async function deleteAccount(req, res, next) {
 module.exports = {
   getUsers,
   getUserById,
+  getCurrentUser,
   updateProfile,
   deleteAccount,
 };

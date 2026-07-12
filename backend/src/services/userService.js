@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const AppError = require('../utils/appError');
+const { requireOwner } = require('../utils/authorization');
 
 async function getUsers(query = {}) {
   const { page = 1, limit = 20, role, isActive, search } = query;
@@ -35,6 +36,10 @@ async function getUserById(id) {
 }
 
 async function updateProfile(id, updates) {
+  if (!id) {
+    throw new AppError('User id is required', 400);
+  }
+
   const allowedFields = ['name', 'phone', 'avatarUrl', 'bio', 'location'];
   const filteredUpdates = {};
 
@@ -57,6 +62,10 @@ async function updateProfile(id, updates) {
 }
 
 async function deleteAccount(id) {
+  if (!id) {
+    throw new AppError('User id is required', 400);
+  }
+
   const user = await User.findByIdAndUpdate(
     id,
     { isActive: false, isSuspended: true },

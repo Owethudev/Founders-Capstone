@@ -35,5 +35,14 @@ Type-check anytime with `npm run typecheck` (strict mode, no `any`).
   link in this README. Test the live site before submitting.
 - Commit as you go. Public repo.
 
+## Deployment checklist
+
+- Production backend: render.yaml
+- Staging backend: render.staging.yaml
+- Required env vars: JWT_SECRET, MONGODB_URI, CORS_ORIGIN, NODE_ENV
+- Optional monitoring: SENTRY_DSN
+- Deployment workflows: .github/workflows/deploy-staging.yml and .github/workflows/deploy-production.yml
+- Post-deploy checks: /health, /healthz, /api/tools
+
 Templates for the three markdown deliverables are in this repo as
 `FOUNDER-RESPONSE.md`, `DECISION-LOG.md`, and `AI-USAGE.md` — fill them in.

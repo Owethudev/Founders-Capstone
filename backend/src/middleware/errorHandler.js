@@ -1,5 +1,17 @@
+const { reportError } = require('../utils/errorReporter');
+const { captureException } = require('../utils/monitoring');
+
 function errorHandler(err, req, res, next) {
-  console.error(err.stack || err);
+  reportError(err, {
+    path: req.originalUrl,
+    method: req.method,
+    requestId: req.requestId,
+  });
+  captureException(err, {
+    path: req.originalUrl,
+    method: req.method,
+    requestId: req.requestId,
+  });
 
   res.status(err.statusCode || 500).json({
     success: false,
