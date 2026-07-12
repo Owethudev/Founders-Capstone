@@ -5,6 +5,9 @@ const connectDB = require('./src/config/db');
 const toolRoutes = require('./src/routes/toolRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const borrowRequestRoutes = require('./src/routes/borrowRequestRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const uploadRoutes = require('./src/routes/uploadRoutes');
 const errorHandler = require('./src/middleware/errorHandler');
 
 const app = express();
@@ -20,6 +23,9 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tools', toolRoutes);
+app.use('/api/borrow-requests', borrowRequestRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 app.use(errorHandler);
 
