@@ -42,6 +42,7 @@ Type-check anytime with `npm run typecheck` (strict mode, no `any`).
 - Required env vars: JWT_SECRET, MONGODB_URI, CORS_ORIGIN, NODE_ENV
 - Optional monitoring: SENTRY_DSN
 - Deployment workflows: .github/workflows/deploy-staging.yml and .github/workflows/deploy-production.yml
+- Deployment setup guide: DEPLOYMENT-SETUP.md
 - Post-deploy checks: /health, /healthz, /api/tools
 
 Templates for the three markdown deliverables are in this repo as
