@@ -23,8 +23,8 @@ const messageRoutes = require('./src/routes/messageRoutes');
 const errorHandler = require('./src/middleware/errorHandler');
 const AppError = require('./src/utils/appError');
 const { initializeSocket } = require('./src/socket');
-const { createWorkers } = require('./src/queue/workers');
-const { getQueues, closeQueues, addJob, buildCleanupJobData, queueNames } = require('./src/queue/queueManager');
+const { getQueues, addJob, buildCleanupJobData, queueNames, closeQueues } = require('./src/queue/queueManager');
+const mongoose = require('mongoose');
 
 validateEnvironment();
 initializeMonitoring();
@@ -101,15 +101,44 @@ async function startServer() {
     console.log(`Server running on port ${PORT}`);
   });
 
-  initializeSocket(server);
+  const io = initializeSocket(server);
 
-  try {
-    createWorkers().catch((error) => {
-      console.warn('Queue workers disabled:', error.message);
+  const shutdown = async (signal) => {
+    console.log(`Received ${signal}. Shutting down gracefully...`);
+
+    server.close(async () => {
+      console.log('HTTP server closed');
     });
-  } catch (error) {
-    console.warn('Queue workers disabled:', error.message);
-  }
+
+    if (io && typeof io.close === 'function') {
+      await io.close();
+      console.log('Socket.IO closed');
+    }
+
+    await closeQueues();
+    console.log('BullMQ queues closed');
+
+    if (mongoose.connection.readyState === 1) {
+      await mongoose.disconnect();
+      console.log('MongoDB disconnected');
+    }
+
+    process.exit(0);
+  };
+
+  process.on('SIGINT', () => {
+    shutdown('SIGINT').catch((error) => {
+      console.error('Shutdown error:', error.message);
+      process.exit(1);
+    });
+  });
+
+  process.on('SIGTERM', () => {
+    shutdown('SIGTERM').catch((error) => {
+      console.error('Shutdown error:', error.message);
+      process.exit(1);
+    });
+  });
 
   setInterval(() => {
     addJob(queueNames.cleanup, buildCleanupJobData({ daysToKeep: 90 }), {
@@ -117,12 +146,6 @@ async function startServer() {
       jobId: 'cleanup-notifications',
     }).catch(() => {});
   }, 24 * 60 * 60 * 1000);
-
-  process.on('SIGTERM', async () => {
-    server.close();
-    await closeQueues();
-    process.exit(0);
-  });
 
   if (process.env.NODE_ENV === 'production') {
     setTimeout(() => {

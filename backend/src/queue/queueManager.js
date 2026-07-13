@@ -1,23 +1,7 @@
 const { Queue } = require('bullmq');
-const IORedis = require('ioredis');
+const createRedisConnection = require('./redis');
 
-let connection = null;
 let queues = null;
-
-function normalizeRedisUrl() {
-  const rawUrl = process.env.REDIS_URL || process.env.REDIS_HOST || 'redis://127.0.0.1:6379';
-  const trimmedUrl = rawUrl.trim();
-
-  if (!trimmedUrl) {
-    return 'redis://127.0.0.1:6379';
-  }
-
-  if (trimmedUrl.startsWith('rediss://')) {
-    return trimmedUrl.replace('rediss://', 'redis://');
-  }
-
-  return trimmedUrl;
-}
 
 const queueNames = {
   email: 'email',
@@ -26,30 +10,7 @@ const queueNames = {
 };
 
 function getConnection() {
-  if (!connection) {
-    const redisUrl = normalizeRedisUrl();
-    console.log('Redis URL:', redisUrl);
-
-    connection = new IORedis(redisUrl);
-
-    connection.on('connect', () => {
-      console.log('✅ Redis Connected');
-    });
-
-    connection.on('ready', () => {
-      console.log('✅ Redis Ready');
-    });
-
-    connection.on('error', (err) => {
-      console.error('❌ Redis Error:', err.message);
-    });
-
-    connection.on('close', () => {
-      console.log('Redis Closed');
-    });
-  }
-
-  return connection;
+  return createRedisConnection();
 }
 
 function getQueues() {
@@ -120,6 +81,14 @@ async function addJob(queueName, data, opts = {}) {
   }
 }
 
+async function addNotificationJob(data, opts = {}) {
+  return addJob(queueNames.notification, data, opts);
+}
+
+async function addEmailJob(data, opts = {}) {
+  return addJob(queueNames.email, data, opts);
+}
+
 async function closeQueues() {
   if (queues) {
     await Promise.allSettled(Object.values(queues).map((queue) => queue.close()));
@@ -127,18 +96,16 @@ async function closeQueues() {
   if (scheduler) {
     await scheduler.close();
   }
-  if (connection) {
-    await connection.quit();
-  }
 }
 
 module.exports = {
-  connection: getConnection,
   queueNames,
   getQueues,
   getConnection,
   scheduler,
   addJob,
+  addNotificationJob,
+  addEmailJob,
   closeQueues,
   buildNotificationJobData,
   buildEmailJobData,

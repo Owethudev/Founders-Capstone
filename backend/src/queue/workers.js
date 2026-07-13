@@ -1,7 +1,8 @@
 const { Worker } = require('bullmq');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
-const { getConnection, queueNames } = require('./queueManager');
+const { queueNames } = require('./queueManager');
+const createRedisConnection = require('./redis');
 const { sendMail } = require('../services/email/mailService');
 
 function buildLogger(prefix) {
@@ -13,14 +14,6 @@ function buildLogger(prefix) {
 
 async function createWorkers() {
   const logger = buildLogger('bullmq');
-
-  try {
-    const connection = getConnection();
-    await connection.connect();
-  } catch (error) {
-    logger.error('redis connection unavailable, queue workers disabled', { error: error.message });
-    return null;
-  }
 
   const notificationWorker = new Worker(
     queueNames.notification,
@@ -40,7 +33,10 @@ async function createWorkers() {
         logger.error('notification persistence failed', { jobId: job.id, error: error.message });
       }
     },
-    { connection: getConnection(), concurrency: 5 }
+    {
+      connection: createRedisConnection(),
+      concurrency: 5,
+    }
   );
 
   const emailWorker = new Worker(
@@ -73,7 +69,10 @@ async function createWorkers() {
         logger.error('email send failed', { to: recipientEmail, error: error.message });
       }
     },
-    { connection: getConnection(), concurrency: 2 }
+    {
+      connection: createRedisConnection(),
+      concurrency: 2,
+    }
   );
 
   const cleanupWorker = new Worker(
@@ -85,12 +84,33 @@ async function createWorkers() {
       await Notification.deleteMany({ createdAt: { $lt: cutoffDate }, isRead: true });
       logger.info('cleanup job complete', { cutoffDate });
     },
-    { connection: getConnection(), concurrency: 1 }
+    {
+      connection: createRedisConnection(),
+      concurrency: 1,
+    }
   );
 
-  notificationWorker.on('failed', (job, err) => logger.error('notification worker failed', { jobId: job?.id, error: err.message }));
-  emailWorker.on('failed', (job, err) => logger.error('email worker failed', { jobId: job?.id, error: err.message }));
-  cleanupWorker.on('failed', (job, err) => logger.error('cleanup worker failed', { jobId: job?.id, error: err.message }));
+  const attachLifecycleListeners = (worker, workerName) => {
+    worker.on('completed', (job) => {
+      logger.info(`${workerName} job completed`, { jobId: job.id });
+    });
+
+    worker.on('failed', (job, error) => {
+      logger.error(`${workerName} job failed`, { jobId: job?.id, error: error.message });
+    });
+
+    worker.on('error', (error) => {
+      logger.error(`${workerName} worker error`, { error: error.message });
+    });
+
+    worker.on('ready', () => {
+      logger.info(`${workerName} worker ready`);
+    });
+  };
+
+  attachLifecycleListeners(notificationWorker, 'notification');
+  attachLifecycleListeners(emailWorker, 'email');
+  attachLifecycleListeners(cleanupWorker, 'cleanup');
 
   return { notificationWorker, emailWorker, cleanupWorker };
 }
