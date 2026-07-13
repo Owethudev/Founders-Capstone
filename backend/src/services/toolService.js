@@ -55,11 +55,8 @@ async function getTools(query = {}) {
   sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
   if (mongoose.connection.readyState !== 1) {
-    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
-      return [];
-    }
-
-    throw new AppError('Database unavailable', 503);
+    console.warn('MongoDB unavailable; returning an empty tool list.');
+    return [];
   }
 
   const pageNumber = Math.max(1, Number(page));

@@ -61,6 +61,9 @@ async function requestJson(port, path, options = {}) {
 
     const tools = await requestJson(port, '/api/tools');
     assert.strictEqual(tools.statusCode, 200);
+    const toolsBody = JSON.parse(tools.body);
+    assert.strictEqual(toolsBody.success, true);
+    assert.strictEqual(Array.isArray(toolsBody.data), true);
 
     const protectedProfile = await requestJson(port, '/api/users/me', {
       method: 'PATCH',
