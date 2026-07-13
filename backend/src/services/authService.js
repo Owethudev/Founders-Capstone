@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const AppError = require('../utils/appError');
+const { addJob, buildEmailJobData } = require('../queue/queueManager');
 
 function signToken(payload) {
   return jwt.sign(payload, process.env.JWT_SECRET, {
@@ -25,6 +26,13 @@ async function registerUser({ name, email, password, role = 'user' }) {
   });
 
   const token = signToken({ id: user._id, role: user.role });
+
+  addJob('email', buildEmailJobData({
+    to: user._id.toString(),
+    subject: 'Welcome to Founders Capstone',
+    html: `<p>Welcome ${user.name}, thanks for joining.</p>`,
+    text: `Welcome ${user.name}, thanks for joining.`,
+  })).catch((error) => console.warn('Welcome email queue failed', error.message));
 
   return {
     user: {

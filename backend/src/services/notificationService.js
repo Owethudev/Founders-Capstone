@@ -1,11 +1,12 @@
 const Notification = require('../models/Notification');
+const { addJob, buildNotificationJobData } = require('../queue/queueManager');
 
 async function createNotification({ recipientId, type, title, body, entityType = null, entityId = null, actionUrl = null }) {
   if (!recipientId) {
     return null;
   }
 
-  return Notification.create({
+  const payload = buildNotificationJobData({
     recipientId,
     type,
     title,
@@ -14,6 +15,9 @@ async function createNotification({ recipientId, type, title, body, entityType =
     entityId,
     actionUrl,
   });
+
+  await addJob('notification', payload, { attempts: 3, backoffDelay: 1000 });
+  return { queued: true, payload };
 }
 
 async function getNotifications(userId, query = {}) {

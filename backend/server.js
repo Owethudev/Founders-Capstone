@@ -22,6 +22,9 @@ const notificationRoutes = require('./src/routes/notificationRoutes');
 const messageRoutes = require('./src/routes/messageRoutes');
 const errorHandler = require('./src/middleware/errorHandler');
 const AppError = require('./src/utils/appError');
+const { initializeSocket } = require('./src/socket');
+const { createWorkers } = require('./src/queue/workers');
+const { getQueues, closeQueues, addJob, buildCleanupJobData, queueNames } = require('./src/queue/queueManager');
 
 validateEnvironment();
 initializeMonitoring();
@@ -50,6 +53,26 @@ const apiLimiter = rateLimit({
 app.use('/api', apiLimiter);
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/queue-health', async (req, res) => {
+  try {
+    const queueMap = getQueues();
+    const counts = await Promise.all(Object.entries(queueMap).map(async ([name, queue]) => [name, await queue.getJobCounts()]));
+    res.json({ status: 'ok', queues: Object.fromEntries(counts) });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.get('/queue-dashboard', async (req, res) => {
+  try {
+    const queueMap = getQueues();
+    const counts = await Promise.all(Object.entries(queueMap).map(async ([name, queue]) => [name, await queue.getJobCounts()]));
+    const html = `<!doctype html><html><body><h1>Queue Dashboard</h1><pre>${JSON.stringify(Object.fromEntries(counts), null, 2)}</pre></body></html>`;
+    res.type('html').send(html);
+  } catch (error) {
+    res.status(500).type('html').send(`<h1>Queue Dashboard Error</h1><p>${error.message}</p>`);
+  }
+});
 attachMonitoring(app);
 
 app.use('/api/auth', authRoutes);
@@ -76,6 +99,22 @@ async function startServer() {
   await connectDB();
   const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+  });
+
+  initializeSocket(server);
+  createWorkers();
+
+  setInterval(() => {
+    addJob(queueNames.cleanup, buildCleanupJobData({ daysToKeep: 90 }), {
+      repeat: { every: 24 * 60 * 60 * 1000 },
+      jobId: 'cleanup-notifications',
+    }).catch((error) => console.error('Cleanup schedule failed', error.message));
+  }, 24 * 60 * 60 * 1000);
+
+  process.on('SIGTERM', async () => {
+    server.close();
+    await closeQueues();
+    process.exit(0);
   });
 
   if (process.env.NODE_ENV === 'production') {
