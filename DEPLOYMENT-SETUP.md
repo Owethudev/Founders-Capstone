@@ -28,8 +28,10 @@ Create these repository secrets in GitHub:
 ## 4. Frontend deploy
 
 - The repository now includes a frontend deployment workflow at `.github/workflows/frontend-deploy.yml`.
+- Netlify deployment settings are also defined in `netlify.toml`.
 - Set the frontend hosting provider to build from the repo root with `npm install` and `npm run build`.
 - Set the environment variable `VITE_API_BASE_URL` to `https://founders-capstone-backend.onrender.com`.
+- See NETLIFY-SETUP.md for the required Netlify secrets and site settings.
 
 ## 5. Deploy
 
