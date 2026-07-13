@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const AppError = require('../utils/appError');
 const { addJob, buildEmailJobData } = require('../queue/queueManager');
+const { sendWelcomeEmail, sendPasswordResetEmail } = require('./email/mailService');
 
 function signToken(payload) {
   return jwt.sign(payload, process.env.JWT_SECRET, {
@@ -33,6 +34,8 @@ async function registerUser({ name, email, password, role = 'user' }) {
     html: `<p>Welcome ${user.name}, thanks for joining.</p>`,
     text: `Welcome ${user.name}, thanks for joining.`,
   })).catch((error) => console.warn('Welcome email queue failed', error.message));
+
+  sendWelcomeEmail({ email: user.email, name: user.name }).catch((error) => console.warn('Welcome email send failed', error.message));
 
   return {
     user: {

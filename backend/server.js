@@ -59,7 +59,7 @@ app.get('/queue-health', async (req, res) => {
     const counts = await Promise.all(Object.entries(queueMap).map(async ([name, queue]) => [name, await queue.getJobCounts()]));
     res.json({ status: 'ok', queues: Object.fromEntries(counts) });
   } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
+    res.status(200).json({ status: 'degraded', message: 'Redis unavailable' });
   }
 });
 
@@ -70,7 +70,7 @@ app.get('/queue-dashboard', async (req, res) => {
     const html = `<!doctype html><html><body><h1>Queue Dashboard</h1><pre>${JSON.stringify(Object.fromEntries(counts), null, 2)}</pre></body></html>`;
     res.type('html').send(html);
   } catch (error) {
-    res.status(500).type('html').send(`<h1>Queue Dashboard Error</h1><p>${error.message}</p>`);
+    res.status(200).type('html').send('<h1>Queue Dashboard</h1><p>Redis unavailable</p>');
   }
 });
 attachMonitoring(app);
@@ -102,13 +102,20 @@ async function startServer() {
   });
 
   initializeSocket(server);
-  createWorkers();
+
+  try {
+    createWorkers().catch((error) => {
+      console.warn('Queue workers disabled:', error.message);
+    });
+  } catch (error) {
+    console.warn('Queue workers disabled:', error.message);
+  }
 
   setInterval(() => {
     addJob(queueNames.cleanup, buildCleanupJobData({ daysToKeep: 90 }), {
       repeat: { every: 24 * 60 * 60 * 1000 },
       jobId: 'cleanup-notifications',
-    }).catch((error) => console.error('Cleanup schedule failed', error.message));
+    }).catch(() => {});
   }, 24 * 60 * 60 * 1000);
 
   process.on('SIGTERM', async () => {

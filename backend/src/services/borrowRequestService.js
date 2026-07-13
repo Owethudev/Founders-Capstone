@@ -1,9 +1,11 @@
 const BorrowRequest = require('../models/BorrowRequest');
 const Tool = require('../models/Tool');
+const User = require('../models/User');
 const AppError = require('../utils/appError');
 const { requireOwner } = require('../utils/authorization');
 const { pickAllowedFields } = require('../utils/validatePayload');
 const { createNotification } = require('./notificationService');
+const { sendBorrowRequestReceivedEmail, sendBorrowRequestAcceptedEmail, sendToolReturnedEmail } = require('./email/mailService');
 
 async function createBorrowRequest(borrowerId, payload) {
   const safePayload = pickAllowedFields(payload, ['toolId', 'startDate', 'endDate', 'message', 'pickupLocation']);
@@ -57,6 +59,11 @@ async function createBorrowRequest(borrowerId, payload) {
     entityId: borrowRequest._id,
     actionUrl: `/borrow-requests/${borrowRequest._id}`,
   });
+
+  const borrower = await User.findById(borrowerId).select('name email');
+  if (borrower) {
+    sendBorrowRequestReceivedEmail(borrower, { toolName: tool.title }).catch((error) => console.warn('Borrow request received email failed', error.message));
+  }
 
   return borrowRequest;
 }
@@ -163,6 +170,19 @@ async function updateBorrowRequestStatus(userId, requestId, payload) {
       entityId: borrowRequest._id,
       actionUrl: `/borrow-requests/${borrowRequest._id}`,
     });
+
+    const borrower = await User.findById(borrowRequest.borrowerId).select('name email');
+    const tool = await Tool.findById(borrowRequest.toolId).select('title');
+
+    if (borrower && tool) {
+      if (status === 'accepted') {
+        sendBorrowRequestAcceptedEmail(borrower, { toolName: tool.title }).catch((error) => console.warn('Borrow request accepted email failed', error.message));
+      }
+
+      if (status === 'returned') {
+        sendToolReturnedEmail(borrower, { name: tool.title }).catch((error) => console.warn('Tool returned email failed', error.message));
+      }
+    }
   }
 
   return borrowRequest;

@@ -16,8 +16,17 @@ async function createNotification({ recipientId, type, title, body, entityType =
     actionUrl,
   });
 
-  await addJob('notification', payload, { attempts: 3, backoffDelay: 1000 });
-  return { queued: true, payload };
+  const notification = await Notification.create({
+    recipientId,
+    type,
+    title,
+    body,
+    entityType,
+    entityId,
+    actionUrl,
+  });
+
+  return notification;
 }
 
 async function getNotifications(userId, query = {}) {

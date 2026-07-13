@@ -4,6 +4,21 @@ const IORedis = require('ioredis');
 let connection = null;
 let queues = null;
 
+function normalizeRedisUrl() {
+  const rawUrl = process.env.REDIS_URL || process.env.REDIS_HOST || 'redis://127.0.0.1:6379';
+  const trimmedUrl = rawUrl.trim();
+
+  if (!trimmedUrl) {
+    return 'redis://127.0.0.1:6379';
+  }
+
+  if (trimmedUrl.startsWith('rediss://')) {
+    return trimmedUrl.replace('rediss://', 'redis://');
+  }
+
+  return trimmedUrl;
+}
+
 const queueNames = {
   email: 'email',
   notification: 'notification',
@@ -12,12 +27,25 @@ const queueNames = {
 
 function getConnection() {
   if (!connection) {
-    connection = new IORedis(process.env.REDIS_URL || 'redis://127.0.0.1:6379', {
-      lazyConnect: true,
-      maxRetriesPerRequest: null,
-      enableOfflineQueue: true,
-      connectTimeout: 1000,
-      commandTimeout: 1000,
+    const redisUrl = normalizeRedisUrl();
+    console.log('Redis URL:', redisUrl);
+
+    connection = new IORedis(redisUrl);
+
+    connection.on('connect', () => {
+      console.log('✅ Redis Connected');
+    });
+
+    connection.on('ready', () => {
+      console.log('✅ Redis Ready');
+    });
+
+    connection.on('error', (err) => {
+      console.error('❌ Redis Error:', err.message);
+    });
+
+    connection.on('close', () => {
+      console.log('Redis Closed');
     });
   }
 
@@ -28,9 +56,9 @@ function getQueues() {
   if (!queues) {
     const redisConnection = getConnection();
     queues = {
-      email: new Queue(queueNames.email, { connection: redisConnection }),
-      notification: new Queue(queueNames.notification, { connection: redisConnection }),
-      cleanup: new Queue(queueNames.cleanup, { connection: redisConnection }),
+      email: new Queue(queueNames.email, { connection: redisConnection, prefix: '{founders-capstone}' }),
+      notification: new Queue(queueNames.notification, { connection: redisConnection, prefix: '{founders-capstone}' }),
+      cleanup: new Queue(queueNames.cleanup, { connection: redisConnection, prefix: '{founders-capstone}' }),
     };
   }
 
@@ -75,16 +103,21 @@ async function addJob(queueName, data, opts = {}) {
     throw new Error(`Unknown queue: ${queueName}`);
   }
 
-  return queue.add(queueName, data, {
-    attempts: opts.attempts || 3,
-    backoff: {
-      type: 'exponential',
-      delay: opts.backoffDelay || 2000,
-    },
-    removeOnComplete: true,
-    removeOnFail: false,
-    ...opts,
-  });
+  try {
+    return await queue.add(queueName, data, {
+      attempts: opts.attempts || 3,
+      backoff: {
+        type: 'exponential',
+        delay: opts.backoffDelay || 2000,
+      },
+      removeOnComplete: true,
+      removeOnFail: false,
+      ...opts,
+    });
+  } catch (error) {
+    console.error('Queue Error:', error);
+    throw error;
+  }
 }
 
 async function closeQueues() {
